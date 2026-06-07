@@ -1,0 +1,23 @@
+services:
+  proxsport:
+    image: ghcr.io/blink-zero/proxsport:latest
+    container_name: proxsport
+    restart: unless-stopped
+    ports:
+      - "9221:9221"
+    environment:
+      PROXMOX_URL: "https://pve.example.com:8006"
+
+      # API token auth (recommended). Create one in the Proxmox UI:
+      #   Datacenter → Permissions → API Tokens → Add
+      #   - User: a dedicated monitoring user with PVEAuditor on /
+      #   - Privilege Separation: off (or grant PVEAuditor on the token too)
+      PROXMOX_TOKEN_ID: "monitoring@pve!proxsport"
+      PROXMOX_TOKEN_SECRET: "00000000-0000-0000-0000-000000000000"
+
+      # Or, fallback PAM password auth:
+      # PROXMOX_USERNAME: "monitoring@pam"
+      # PROXMOX_PASSWORD: "..."
+
+      PROXMOX_INSECURE_SKIP_VERIFY: "true" # set to false once you've installed a trusted cert
+      PROXSPORT_POLL_INTERVAL: "30s"
