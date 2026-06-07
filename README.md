@@ -48,7 +48,7 @@ PROXMOX_TOKEN_SECRET="..." \
 ./proxsport
 ```
 
-A `systemd` unit example lives in `examples/proxsport.service` (planned).
+A `systemd` unit example lives in [`examples/proxsport.service`](./examples/proxsport.service), and a Prometheus scrape snippet in [`examples/prometheus-scrape.yml`](./examples/prometheus-scrape.yml).
 
 ## Configuration
 
@@ -141,10 +141,12 @@ Templates are intentionally excluded — they have no runtime metrics.
 | `proxsport_storage_total_bytes`| gauge | Total capacity.                            |
 | `proxsport_storage_active`     | gauge | `1` if the storage pool is available.      |
 
+## Grafana dashboard
+
+A drop-in dashboard ships in [`grafana/dashboard.json`](./grafana/dashboard.json) — cluster overview, node, guest, and storage rows, with template variables for datasource, node filter, and guest type. Import via *Dashboards → Import* and pick your Prometheus datasource. See [`grafana/README.md`](./grafana/README.md).
+
 ## Roadmap
 
-- `examples/grafana-dashboard.json` — drop-in Grafana dashboard.
-- `examples/proxsport.service` — systemd unit for direct install on a Proxmox host or sidecar VM.
 - Per-VM disk-device metrics (each virtual disk separately).
 - Per-guest network-interface breakdown (each NIC separately).
 - Backup job / replication status metrics.

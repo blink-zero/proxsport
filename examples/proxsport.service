@@ -1,0 +1,54 @@
+# Systemd unit for proxsport when installed as a static binary on a
+# Proxmox host or sidecar VM.
+#
+# Setup:
+#   1. Drop the proxsport binary at /usr/local/bin/proxsport
+#      (chmod +x, chown root:root).
+#   2. Drop this file at /etc/systemd/system/proxsport.service.
+#   3. Create the environment file at /etc/proxsport.env (see below).
+#   4. systemctl daemon-reload && systemctl enable --now proxsport
+#
+# Environment file format (/etc/proxsport.env):
+#
+#   PROXMOX_URL=https://localhost:8006
+#   PROXMOX_TOKEN_ID=monitoring@pve!proxsport
+#   PROXMOX_TOKEN_SECRET=00000000-0000-0000-0000-000000000000
+#   PROXMOX_INSECURE_SKIP_VERIFY=true
+#   PROXSPORT_LISTEN=:9221
+#
+# Permissions on /etc/proxsport.env should be 0600 root:root (it contains
+# the API token secret).
+
+[Unit]
+Description=Prometheus exporter for Proxmox VE (proxsport)
+Documentation=https://github.com/blink-zero/proxsport
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nobody
+Group=nogroup
+EnvironmentFile=/etc/proxsport.env
+ExecStart=/usr/local/bin/proxsport
+Restart=on-failure
+RestartSec=5s
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+RestrictRealtime=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target
