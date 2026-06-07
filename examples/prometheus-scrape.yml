@@ -1,0 +1,17 @@
+# Drop-in scrape config snippet for prometheus.yml.
+#
+# proxsport polls Proxmox on its own cadence (PROXSPORT_POLL_INTERVAL,
+# default 30 s) and serves the cached values. Scraping more frequently
+# than the poll interval is wasteful but not harmful — Prometheus will
+# just see the same values until proxsport polls again.
+
+scrape_configs:
+  - job_name: "proxsport"
+    metrics_path: "/metrics"
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - "proxsport:9221"          # docker-compose service name
+          # - "10.0.0.10:9221"        # direct host:port
+        labels:
+          cluster: "primary"          # add any labels you want every series tagged with
