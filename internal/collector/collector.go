@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"log/slog"
+	"strconv"
 	"sync"
 	"time"
 
@@ -396,8 +397,7 @@ func (c *Collector) collectGuest(ch chan<- prometheus.Metric, r proxmox.Resource
 	if r.Template != nil && *r.Template == 1 {
 		return
 	}
-	vmid := itoa(r.VMID)
-	labels := []string{vmid, r.Name, r.Node, r.Type, r.Tags}
+	labels := []string{strconv.FormatInt(r.VMID, 10), r.Name, r.Node, r.Type, r.Tags}
 
 	running := 0.0
 	if r.Status == "running" {
@@ -455,27 +455,3 @@ func (c *Collector) collectStorage(ch chan<- prometheus.Metric, r proxmox.Resour
 	}
 }
 
-func itoa(n int64) string {
-	// Cheap int → string without importing strconv just for this. Used for
-	// the vmid label, which always fits in a positive int64.
-	if n == 0 {
-		return "0"
-	}
-	negative := false
-	if n < 0 {
-		negative = true
-		n = -n
-	}
-	var buf [20]byte
-	pos := len(buf)
-	for n > 0 {
-		pos--
-		buf[pos] = byte('0' + n%10)
-		n /= 10
-	}
-	if negative {
-		pos--
-		buf[pos] = '-'
-	}
-	return string(buf[pos:])
-}
